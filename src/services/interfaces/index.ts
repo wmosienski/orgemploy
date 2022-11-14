@@ -1,0 +1,1 @@
+export { ILoggerService } from './logger.interface';
