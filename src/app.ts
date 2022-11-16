@@ -4,9 +4,10 @@ import { DI_TYPES } from 'DI_TYPES';
 import express, { Express } from 'express';
 import { Server } from 'http';
 import { inject, injectable } from "inversify";
-import { json as jsonBodyParser } from 'body-parser';
+import * as bodyParser from 'body-parser';
+import 'dotenv';
 
-const DEFAULT_PORT = 8080;
+const DEFAULT_PORT = 5000;
 
 @injectable()
 export class App {
@@ -27,7 +28,8 @@ export class App {
     }
 
     public useMiddleware(): void {
-        this._app.use(jsonBodyParser);
+        this._app.use(bodyParser.urlencoded({ extended: false }))
+        this._app.use(bodyParser.json());
     }
 
     public useRoutes(): void {
@@ -35,6 +37,7 @@ export class App {
     }
 
     public async init(): Promise<void> {
+        this.useMiddleware();
         this.useRoutes();
         this._server = this._app.listen(this._port);
         this._loggerService.log('Server is running');

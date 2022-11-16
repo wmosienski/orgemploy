@@ -25,11 +25,11 @@
 		"paths": {
 			"@Services*": ["services*", "services/"],
 			"@Controllers*": ["controllers*", "controllers/"],
+			"@DTO*": ["dto*", "dto/"],
+			"@Database*": ["database*", "database/"],
 			"@Providers*": ["providers*", "providers/"],
 			"@Enums": ["enums*", "enums/"],
-			"@Database": ["database*", "database/"],
 			"@Entities": ["entities*", "entities/"],
-			"@DTO": ["dto*", "dto/"],
 			"@Mappers": ["mappers*", "mappers/"],
 		},
 		"plugins": [

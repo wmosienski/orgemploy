@@ -1,7 +1,7 @@
 import { IMiddleware } from "@Controllers/interfaces/middleware.interface";
 import { ClassConstructor, plainToClass } from "class-transformer";
 import { validate } from "class-validator";
-import e, { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
 export class ValidateMiddleware implements IMiddleware {
     private readonly _classToValidate: ClassConstructor<object>;
@@ -14,8 +14,8 @@ export class ValidateMiddleware implements IMiddleware {
         const instanceOfClassToValidate = plainToClass(this._classToValidate, req.body);
 
         validate(instanceOfClassToValidate).then(validationErroInfo => {
-            if (validationErroInfo) {
-                res.status(400).send();
+            if (validationErroInfo.length) {
+                res.status(400).send(JSON.stringify(validationErroInfo));
             } else {
                 next();
             }
