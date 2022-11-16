@@ -6,6 +6,8 @@ import { BaseController } from "./common/base.controller";
 import 'reflect-metadata';
 import { ValidateMiddleware } from "./middlewares/validation.middleware";
 import { UserRegisterDTO } from "@DTO/user-register.dto";
+import { HttpCodes } from "./utils/http-codes";
+import { ErrorInfo, ErrorType } from "@Services/utils/error-info";
 
 @injectable()
 export class UserController extends BaseController {
@@ -33,6 +35,10 @@ export class UserController extends BaseController {
             ...req.body
         }
         const result = await this._userService.register(userRegisterDTO);
-        res.status(200).send(result)
+        if (result instanceof ErrorInfo) {
+            res.status(HttpCodes[ErrorType[result.type]]).send(result.message);
+            return;
+        }
+        res.status(200).send(result);
     }
 }

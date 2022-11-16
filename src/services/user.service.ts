@@ -4,6 +4,7 @@ import { injectable } from 'inversify';
 import 'reflect-metadata';
 import { hash } from 'utils/crypt';
 import { IUserService } from './interfaces';
+import { ErrorInfo, ErrorType } from './utils/error-info';
 
 @injectable()
 export class UserService implements IUserService {
@@ -12,9 +13,9 @@ export class UserService implements IUserService {
 
     }
 
-    public async register(userRegisterDTO: UserRegisterDTO): Promise<any[] | void | string> {
+    public async register(userRegisterDTO: UserRegisterDTO): Promise<any[] | ErrorInfo> {
         if (await UserModel.findOne({email: userRegisterDTO.email})) {
-            return 'email already taken';
+            return new ErrorInfo('email already taken', ErrorType.CONFLICT);
         }
         userRegisterDTO.password = await hash(userRegisterDTO.password);
         return await UserModel.insertMany([userRegisterDTO]);
