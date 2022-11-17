@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { UserRegisterDTO } from '@DTO/user-register.dto';
+import { UserDTO } from '@DTO/user.dto';
 import { UserSchema } from '../schemas';
 
-export const UserModel = mongoose.model<UserRegisterDTO & mongoose.Document>('User', UserSchema);
+export const UserModel = mongoose.model<UserDTO & mongoose.Document>('User', UserSchema);
