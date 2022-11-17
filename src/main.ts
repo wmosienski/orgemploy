@@ -1,4 +1,3 @@
-import { AuthMiddleware } from "@Controllers/middlewares/auth.middleware";
 import { UserController } from "@Controllers/user.controller";
 import initializeMongo from "@Database/mongo/mongo";
 import { LoggerService, UserService } from "@Services";
