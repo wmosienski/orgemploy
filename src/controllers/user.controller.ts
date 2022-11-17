@@ -6,9 +6,9 @@ import { BaseController } from "./common/base.controller";
 import 'reflect-metadata';
 import { ValidateMiddleware } from "./middlewares/validation.middleware";
 import { UserRegisterDTO } from "@DTO/user-register.dto";
-import { HttpCodes } from "./utils/http-codes";
-import { ErrorInfo, ErrorType } from "@Services/utils/error-info";
+import { CatchError } from "./helpers/catch.error.decorator";
 
+@CatchError(['constructor', 'bindRouters'])
 @injectable()
 export class UserController extends BaseController {
     private readonly _userService: IUserService
@@ -35,10 +35,6 @@ export class UserController extends BaseController {
             ...req.body
         }
         const result = await this._userService.register(userRegisterDTO);
-        if (result instanceof ErrorInfo) {
-            res.status(HttpCodes[ErrorType[result.type]]).send(result.message);
-            return;
-        }
         res.status(200).send(result);
     }
 }
