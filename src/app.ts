@@ -6,6 +6,7 @@ import { Server } from 'http';
 import { inject, injectable } from "inversify";
 import * as bodyParser from 'body-parser';
 import 'dotenv';
+import { ResponseCodeMiddleware } from '@Controllers/middlewares/response.code.errorware';
 
 const DEFAULT_PORT = 5000;
 
@@ -39,6 +40,7 @@ export class App {
     public async init(): Promise<void> {
         this.useMiddleware();
         this.useRoutes();
+        this._app.use(new ResponseCodeMiddleware().execute)
         this._server = this._app.listen(this._port);
         this._loggerService.log('Server is running');
     }

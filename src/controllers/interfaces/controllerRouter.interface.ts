@@ -1,10 +1,5 @@
 import { NextFunction, Request, Response, Router } from 'express';
-
-
-
 import { IMiddleware } from './middleware.interface';
-
-
 
 export interface IControllerRoute {
 
@@ -17,7 +12,5 @@ export interface IControllerRoute {
     middlewares?: IMiddleware[];
 
 }
-
-
 
 export type ExpressReturnType = Response<any, Record<string, any>>;
