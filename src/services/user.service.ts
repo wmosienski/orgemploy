@@ -1,15 +1,15 @@
-import { UserRegisterDTO } from '@DTO/user-register.dto';
+import { UserRegisterDTO } from '@DTO/user/user-register.dto';
 import { UserModel } from '@Database/mongo/models';
 import { injectable } from 'inversify';
 import 'reflect-metadata';
 import { compare, generateToken, hash, verifyToken } from 'utils/crypt';
 import { IUserService } from './interfaces';
 import { ValueAlreadyInUse } from 'errors/ValueAlreadyInUse';
-import { UserEditDTO } from '@DTO/user-edit.dto';
-import { UserLoginResponseDTO } from '@DTO/user-login-response.dto';
+import { UserEditDTO } from '@DTO/user/user-edit.dto';
+import { UserLoginResponseDTO } from '@DTO/user/user-login-response.dto';
 import { config } from 'utils/config';
 import { Unauthorized } from 'errors/Unauthorized';
-import { UserLoginDTO } from '@DTO/user-login.dto';
+import { UserLoginDTO } from '@DTO/user/user-login.dto';
 
 @injectable()
 export class UserService implements IUserService {
@@ -66,7 +66,7 @@ export class UserService implements IUserService {
         })
     }
 
-    public async verifyAndRestartToken(id: string, token: string): Promise<void> {
+    public async verifyAndRestartToken(id: string, token: string): Promise<string> {
         const user = await UserModel.findById(id);
 
         if (!user) {
@@ -82,5 +82,16 @@ export class UserService implements IUserService {
         if (tokenData.exp < Date.now() / 1000) {
             throw new Unauthorized('session expired');
         }
+
+        if (tokenData.exp -config.exp + config.newTokenAfter < Date.now() / 1000) {
+            token = await generateToken(id, Date.now() / 1000 + config.exp);
+            await UserModel.updateOne(
+                {_id: id},
+                {token}
+            );
+            return token;
+        }
+
+        return token;
     }
 }
