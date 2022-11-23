@@ -67,6 +67,6 @@ export class UserController extends BaseController {
             ...req.body,
         }
         const result = await this._userService.edit(userEditDTO);
-        res.status(HTTPCodes.success.accepted).send(result);
+        res.status(HTTPCodes.success.ok).send(result);
     }
 }

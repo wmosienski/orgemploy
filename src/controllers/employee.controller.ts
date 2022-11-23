@@ -9,6 +9,7 @@ import { CatchError } from "./helpers/catch.error.decorator";
 import { EmployeeInfoEditDTO } from "@DTO/user/employee/info/employee.info-edit.dto";
 import { IEmployeeService } from "@Services/interfaces/employee.interface";
 import { AuthMiddleware } from "./middlewares/auth.middleware";
+import { HTTPCodes } from "./helpers/http-codes";
 
 @CatchError(['constructor', 'bindRouters'])
 @injectable()
@@ -41,6 +42,6 @@ export class EmployeeController extends BaseController {
             userID: req.header('id'),
         }
         const result = await this._employeeService.editInfo(EmployeeInfoEditDTO);
-        res.status(202).send(result);
+        res.status(HTTPCodes.success.ok).send(result);
     }
 }

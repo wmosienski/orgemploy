@@ -72,7 +72,7 @@ export class UserService implements IUserService {
             password: userEditDTO.newPassword,
         });
 
-        if (updateResult?.modifiedCount !== 1) {
+        if (updateResult?.modifiedCount !== 1 && updateResult?.modifiedCount !== 0) {
             throw new SomethingWentWrong(JSON.stringify(updateResult));
         }
     }
