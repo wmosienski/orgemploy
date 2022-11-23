@@ -46,27 +46,18 @@ export class UserController extends BaseController {
         ])
     }
 
-    public async register(req: Request<{}, {}, any>, res: Response): Promise<void> {
-        const userRegisterDTO: UserRegisterDTO = {
-            ...req.body
-        }
-        const result = await this._userService.register(userRegisterDTO);
+    public async register(req: Request<{}, {}, UserRegisterDTO>, res: Response): Promise<void> {
+        const result = await this._userService.register(req.body);
         res.status(HTTPCodes.success.created).send(result);
     }
 
-    public async login(req: Request<{}, {}, any>, res: Response): Promise<void> {
-        const userLoginDTO: UserLoginDTO = {
-            ...req.body
-        }
-        const result = await this._userService.login(userLoginDTO);
+    public async login(req: Request<{}, {}, UserLoginDTO>, res: Response): Promise<void> {
+        const result = await this._userService.login(req.body);
         res.status(HTTPCodes.success.ok).send(result);
     }
 
-    public async edit(req: Request<{}, {}, any>, res: Response): Promise<void> {
-        const userEditDTO: UserEditDTO = {
-            ...req.body,
-        }
-        const result = await this._userService.edit(userEditDTO);
+    public async edit(req: Request<{}, {}, UserEditDTO>, res: Response): Promise<void> {
+        const result = await this._userService.edit(req.body);
         res.status(HTTPCodes.success.ok).send(result);
     }
 }
