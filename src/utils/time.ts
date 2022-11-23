@@ -1,0 +1,1 @@
+export const getTimestampSeconds = () => Date.now() / 1000;

@@ -7,6 +7,8 @@ import { inject, injectable } from "inversify";
 import * as bodyParser from 'body-parser';
 import 'dotenv';
 import { ResponseCodeMiddleware } from '@Controllers/middlewares/response.code.errorware';
+import { EmployeeService } from '@Services/employee.service';
+import { EmployeeController } from '@Controllers/employee.controller';
 
 const DEFAULT_PORT = 5000;
 
@@ -17,15 +19,18 @@ export class App {
     private readonly _loggerService: ILoggerService;
     private readonly _port: number;
     private readonly _userController: UserController;
+    private readonly _employeeController: EmployeeController;
 
     constructor(
         @inject(DI_TYPES.LoggerService) loggerService: ILoggerService,
         @inject(DI_TYPES.UserController) userController: UserController,
+        @inject(DI_TYPES.EmployeeController) employeeController: EmployeeController,
     ) {
         this._loggerService = loggerService;
         this._app = express();
         this._port = Number(process.env.PORT) || DEFAULT_PORT;
         this._userController = userController;
+        this._employeeController = employeeController;
     }
 
     public useMiddleware(): void {
@@ -35,6 +40,7 @@ export class App {
 
     public useRoutes(): void {
         this._app.use('/users', this._userController.router)
+        this._app.use('/employees', this._employeeController.router)
     }
 
     public async init(): Promise<void> {
