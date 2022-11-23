@@ -11,6 +11,7 @@ import { config } from 'utils/config';
 import { Unauthorized } from 'errors/Unauthorized';
 import { UserLoginDTO } from '@DTO/user-login.dto';
 import { getTimestampSeconds } from 'utils/time';
+import { SomethingWentWrong } from 'errors/SomethingWentWrong';
 
 @injectable()
 export class UserService implements IUserService {
@@ -41,10 +42,14 @@ export class UserService implements IUserService {
             token
         }
 
-        await UserModel.updateOne(
+        const updateResult = await UserModel.updateOne(
             {email: user.email},
             {token}
         );
+
+        if (updateResult?.modifiedCount !== 1) {
+            throw new SomethingWentWrong(JSON.stringify(updateResult));
+        }
 
         return userLoginResponseDTO;
     }
@@ -62,10 +67,14 @@ export class UserService implements IUserService {
 
         userEditDTO.newPassword = await hash(userEditDTO.newPassword);
 
-        await UserModel.updateOne({email: userEditDTO.email}, {
+        const updateResult = await UserModel.updateOne({email: userEditDTO.email}, {
             email: userEditDTO.newEmail,
             password: userEditDTO.newPassword,
-        })
+        });
+
+        if (updateResult?.modifiedCount !== 1) {
+            throw new SomethingWentWrong(JSON.stringify(updateResult));
+        }
     }
 
     public async verifyToken(userID: string, token: string): Promise<void> {
@@ -94,10 +103,15 @@ export class UserService implements IUserService {
 
         if (tokenData.expires - config.tokenExpireTime + config.newTokenAfter < getTimestampSeconds()) {
             token = await generateToken(userID, getTimestampSeconds() + config.tokenExpireTime);
-            await UserModel.updateOne(
+            const updateResult = await UserModel.updateOne(
                 {_id: userID},
                 {token}
             );
+
+            if (updateResult?.modifiedCount !== 1) {
+                throw new SomethingWentWrong(JSON.stringify(updateResult));
+            }
+
             return token;
         }
 

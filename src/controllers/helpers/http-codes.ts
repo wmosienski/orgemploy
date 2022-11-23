@@ -1,5 +1,6 @@
 import { isHttpBadRequest } from "./isHttpBadRequest";
 import { isHttpConflict } from "./isHttpConflict";
+import { isHttpInternalServerError } from "./isHttpInternalServerError";
 import { isHttpUnauthorized } from "./isHttpUnauthorized";
 
 export const HTTPCodes = {
@@ -32,8 +33,9 @@ export const HTTPCodes = {
 }
 
 export const getHttpCode = (error: Error): number => {
-    return   (isHttpBadRequest(error) && HTTPCodes.client_errors.bad_request) 
-        ||     (isHttpConflict(error) && HTTPCodes.client_errors.conflict)
-        || (isHttpUnauthorized(error) && HTTPCodes.client_errors.unauthorized)
-                                      || HTTPCodes.server_errors.internal_server_error;
+    return          (isHttpBadRequest(error) && HTTPCodes.client_errors.bad_request) 
+        ||            (isHttpConflict(error) && HTTPCodes.client_errors.conflict)
+        ||        (isHttpUnauthorized(error) && HTTPCodes.client_errors.unauthorized)
+        || (isHttpInternalServerError(error) && HTTPCodes.server_errors.internal_server_error)
+                                             || HTTPCodes.server_errors.internal_server_error;
 }
