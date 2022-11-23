@@ -5,17 +5,17 @@ import { inject, injectable } from "inversify";
 import { BaseController } from "./common/base.controller";
 import 'reflect-metadata';
 import { ValidateMiddleware } from "./middlewares/validation.middleware";
-import { UserRegisterDTO } from "@DTO/user-register.dto";
+import { UserRegisterDTO } from "@DTO/user/user-register.dto";
 import { CatchError } from "./helpers/catch.error.decorator";
-import { UserEditDTO } from "@DTO/user-edit.dto";
+import { UserEditDTO } from "@DTO/user/user-edit.dto";
 import { AuthMiddleware } from "./middlewares/auth.middleware";
-import { UserLoginDTO } from "@DTO/user-login.dto";
 import { HTTPCodes } from "./helpers/http-codes";
+import { UserLoginDTO } from "@DTO/user/user-login.dto";
 
 @CatchError(['constructor', 'bindRouters'])
 @injectable()
 export class UserController extends BaseController {
-    private readonly _userService: IUserService
+    private readonly _userService: IUserService;
 
     constructor(
         @inject(DI_TYPES.LoggerService) loggerService: ILoggerService,
@@ -67,6 +67,6 @@ export class UserController extends BaseController {
             ...req.body,
         }
         const result = await this._userService.edit(userEditDTO);
-        res.status(HTTPCodes.success.accepted).send(result);
+        res.status(HTTPCodes.success.ok).send(result);
     }
 }
