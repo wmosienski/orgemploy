@@ -10,6 +10,7 @@ import { CatchError } from "./helpers/catch.error.decorator";
 import { UserEditDTO } from "@DTO/user-edit.dto";
 import { AuthMiddleware } from "./middlewares/auth.middleware";
 import { UserLoginDTO } from "@DTO/user-login.dto";
+import { HTTPCodes } from "./helpers/http-codes";
 
 @CatchError(['constructor', 'bindRouters'])
 @injectable()
@@ -50,7 +51,7 @@ export class UserController extends BaseController {
             ...req.body
         }
         const result = await this._userService.register(userRegisterDTO);
-        res.status(201).send(result);
+        res.status(HTTPCodes.success.created).send(result);
     }
 
     public async login(req: Request<{}, {}, any>, res: Response): Promise<void> {
@@ -58,7 +59,7 @@ export class UserController extends BaseController {
             ...req.body
         }
         const result = await this._userService.login(userLoginDTO);
-        res.status(200).send(result);
+        res.status(HTTPCodes.success.ok).send(result);
     }
 
     public async edit(req: Request<{}, {}, any>, res: Response): Promise<void> {
@@ -66,6 +67,6 @@ export class UserController extends BaseController {
             ...req.body,
         }
         const result = await this._userService.edit(userEditDTO);
-        res.status(202).send(result);
+        res.status(HTTPCodes.success.accepted).send(result);
     }
 }

@@ -10,6 +10,7 @@ import { UserLoginResponseDTO } from '@DTO/user-login-response.dto';
 import { config } from 'utils/config';
 import { Unauthorized } from 'errors/Unauthorized';
 import { UserLoginDTO } from '@DTO/user-login.dto';
+import { getTimestampSeconds } from 'utils/time';
 
 @injectable()
 export class UserService implements IUserService {
@@ -29,11 +30,12 @@ export class UserService implements IUserService {
             throw new Unauthorized('wrong email or password');
         }
 
-        if (!await compare(userLoginDTO.password, user?.password || '')) {
+        const isPasswordCorrect = await compare(userLoginDTO.password, user?.password || '');
+        if (!isPasswordCorrect) {
             throw new Unauthorized('wrong email or password');
         }
 
-        const token = await generateToken(user?._id, Date.now() / 1000 + config.exp)
+        const token = await generateToken(user?._id, getTimestampSeconds() + config.tokenExpireTime)
         const userLoginResponseDTO: UserLoginResponseDTO =  {
             _id: user?._id,
             token
@@ -66,8 +68,8 @@ export class UserService implements IUserService {
         })
     }
 
-    public async verifyAndRestartToken(id: string, token: string): Promise<void> {
-        const user = await UserModel.findById(id);
+    public async verifyToken(userID: string, token: string): Promise<void> {
+        const user = await UserModel.findById(userID);
 
         if (!user) {
             throw new Unauthorized('wrong user id');
@@ -75,12 +77,30 @@ export class UserService implements IUserService {
 
         const tokenData = await verifyToken(token);
 
-        if (!tokenData || tokenData.data !== id || user.token !== token) {
+        if (!tokenData || tokenData.data !== userID || user.token !== token) {
             throw new Unauthorized('invalid token');
         }
 
-        if (tokenData.exp < Date.now() / 1000) {
+        if (tokenData.expires < getTimestampSeconds()) {
             throw new Unauthorized('session expired');
         }
+    }
+
+    // not used yet - general question: how do we send back new token?
+    // e.g. if we want to restart session when any authorized request occures 
+    // this function returns old token or generates new one if it's near its expiration
+    public async tryRestartToken(userID: string, token: string): Promise<string> {
+        const tokenData = await verifyToken(token);
+
+        if (tokenData.expires - config.tokenExpireTime + config.newTokenAfter < getTimestampSeconds()) {
+            token = await generateToken(userID, getTimestampSeconds() + config.tokenExpireTime);
+            await UserModel.updateOne(
+                {_id: userID},
+                {token}
+            );
+            return token;
+        }
+
+        return token;
     }
 }

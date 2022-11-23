@@ -11,13 +11,13 @@ export class AuthMiddleware implements IMiddleware {
     }
 
     public async execute(req: Request, res: Response, next: NextFunction) {
-        if (!req.header('id') || !req.header('token')) {
+        if (!req.header('userID') || !req.header('token')) {
             next(new Unauthorized('no header id or token provided'));
         } else {
-            const id = req.header('id') || '';
+            const userID = req.header('userID') || '';
             const token = req.header('token') || '';
             try {
-                await this._userService.verifyAndRestartToken(id, token);
+                await this._userService.verifyToken(userID, token);
             } catch (err) {
                 next(err);
             }

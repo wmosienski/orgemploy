@@ -1,3 +1,4 @@
 export const config = {
-    exp: 999999,
+    tokenExpireTime: 999999,
+    newTokenAfter: 777777,
 }

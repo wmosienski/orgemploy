@@ -10,6 +10,8 @@ export interface IUserService {
 
     edit: (userRegisterDTO: UserEditDTO) => Promise<void>;
 
-    verifyAndRestartToken: (id: string, token: string) => Promise<void>;
+    verifyToken: (userID: string, token: string) => Promise<void>;
+
+    tryRestartToken: (id: string, token: string) => Promise<string>;
 
 }

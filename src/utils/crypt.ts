@@ -1,9 +1,9 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
-export const generateToken = (data: any, exp?: number): string => {
+export const generateToken = (data: any, expires?: number): string => {
     const JWT_SECRET_KEY: string = process.env.JWT_SECRET_KEY || '';
-    return jwt.sign({data, exp}, JWT_SECRET_KEY);
+    return jwt.sign({data, expires}, JWT_SECRET_KEY);
 };
 
 export const verifyToken = (token: string): any => {
