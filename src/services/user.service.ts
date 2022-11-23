@@ -1,17 +1,17 @@
-import { UserRegisterDTO } from '@DTO/user-register.dto';
+import { UserRegisterDTO } from '@DTO/user/user-register.dto';
 import { UserModel } from '@Database/mongo/models';
 import { injectable } from 'inversify';
 import 'reflect-metadata';
 import { compare, generateToken, hash, verifyToken } from 'utils/crypt';
 import { IUserService } from './interfaces';
 import { ValueAlreadyInUse } from 'errors/ValueAlreadyInUse';
-import { UserEditDTO } from '@DTO/user-edit.dto';
-import { UserLoginResponseDTO } from '@DTO/user-login-response.dto';
+import { UserEditDTO } from '@DTO/user/user-edit.dto';
+import { UserLoginResponseDTO } from '@DTO/user/user-login-response.dto';
 import { config } from 'utils/config';
 import { Unauthorized } from 'errors/Unauthorized';
-import { UserLoginDTO } from '@DTO/user-login.dto';
 import { getTimestampSeconds } from 'utils/time';
 import { SomethingWentWrong } from 'errors/SomethingWentWrong';
+import { UserLoginDTO } from '@DTO/user/user-login.dto';
 
 @injectable()
 export class UserService implements IUserService {
@@ -93,6 +93,7 @@ export class UserService implements IUserService {
         if (tokenData.expires < getTimestampSeconds()) {
             throw new Unauthorized('session expired');
         }
+
     }
 
     // not used yet - general question: how do we send back new token?
