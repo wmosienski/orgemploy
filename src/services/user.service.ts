@@ -77,8 +77,8 @@ export class UserService implements IUserService {
     }
 
     public async edit(userEditDTO: UserEditDTO): Promise<void> {
-        const anyUser = await this._userRepository.findByEmail(userEditDTO.newEmail)
-        if (anyUser?.email) {
+        const anyUserExists = await this._userRepository.findByEmail(userEditDTO.newEmail)
+        if (anyUserExists?.email) {
             throw new ValueAlreadyInUse('new email is already taken');
         }
 
