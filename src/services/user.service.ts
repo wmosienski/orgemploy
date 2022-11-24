@@ -1,9 +1,9 @@
 import { UserRegisterDTO } from '@DTO/user/user-register.dto';
 import { UserModel } from '@Database/mongo/models';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { compare, generateToken, hash, verifyToken } from 'utils/crypt';
-import { IUserService } from './interfaces';
+import { ILoggerService, IUserService } from './interfaces';
 import { ValueAlreadyInUse } from 'errors/ValueAlreadyInUse';
 import { UserEditDTO } from '@DTO/user/user-edit.dto';
 import { UserLoginResponseDTO } from '@DTO/user/user-login-response.dto';
@@ -12,73 +12,100 @@ import { Unauthorized } from 'errors/Unauthorized';
 import { getTimestampSeconds } from 'utils/time';
 import { SomethingWentWrong } from 'errors/SomethingWentWrong';
 import { UserLoginDTO } from '@DTO/user/user-login.dto';
+import { UserEntity } from 'entity/user.entity';
+import { mapUserRegisterToUserEntity, mapUserToUserEntity } from '@DTO/mappers/user.dto.entity';
+import { IUserRepository } from '@Database/interfaces/user.repository.interface';
+import { DI_TYPES } from 'DI_TYPES';
+import { UserDBO } from 'dbo/user.dbo';
+import { mapUserDBOToUserEntity, mapUserEntityToUserDBO } from 'entity/mappers/user.entity.dbo';
 
 @injectable()
 export class UserService implements IUserService {
 
-    public async register(userRegisterDTO: UserRegisterDTO): Promise<any[]> {
-        if (await UserModel.findOne({email: userRegisterDTO.email})) {
+    private readonly _userRepository: IUserRepository;
+
+    constructor(
+        @inject(DI_TYPES.LoggerService) loggerService: ILoggerService,
+        @inject(DI_TYPES.UserRepository) userRepository: IUserRepository,
+    ) {
+        this._userRepository = userRepository;
+    }
+
+    public async register(userRegisterDTO: UserRegisterDTO): Promise<void> {
+        const userEntity: UserEntity = mapUserRegisterToUserEntity(userRegisterDTO);
+
+        const userSameEmail = await this._userRepository.findByEmail(userEntity.email);
+        if (userSameEmail) {
             throw new ValueAlreadyInUse('email already taken');
         }
-        userRegisterDTO.password = await hash(userRegisterDTO.password);
-        return await UserModel.insertMany([userRegisterDTO]);
+
+        await userEntity.hashPassword();
+
+        const userDBO: UserDBO = mapUserEntityToUserDBO(userEntity);
+
+        await this._userRepository.insertMany([userDBO]);
     }
 
     public async login(userLoginDTO: UserLoginDTO): Promise<UserLoginResponseDTO> {
-        const user = await UserModel.findOne({email: userLoginDTO.email});
+        const userDBO = await this._userRepository.findByEmail(userLoginDTO.email);
 
-        if (!user?._id) {
+        if (!userDBO?.id) {
             throw new Unauthorized('wrong email or password');
         }
 
-        const isPasswordCorrect = await compare(userLoginDTO.password, user?.password || '');
+        const isPasswordCorrect = await compare(userLoginDTO.password, userDBO?.password || '');
         if (!isPasswordCorrect) {
             throw new Unauthorized('wrong email or password');
         }
 
-        const token = await generateToken(user?._id, getTimestampSeconds() + config.tokenExpireTime)
-        const userLoginResponseDTO: UserLoginResponseDTO =  {
-            _id: user?._id,
-            token
+        const token = await generateToken(userDBO?.id, getTimestampSeconds() + config.tokenExpireTime)
+
+        userDBO.token = token;
+
+        const updateResult = await this._userRepository.updateOne(userDBO);
+
+        if (!updateResult) {
+            throw new SomethingWentWrong(JSON.stringify(updateResult));
         }
 
-        const updateResult = await UserModel.updateOne(
-            {email: user.email},
-            {token}
-        );
-
-        if (updateResult?.modifiedCount !== 1) {
-            throw new SomethingWentWrong(JSON.stringify(updateResult));
+        const userLoginResponseDTO: UserLoginResponseDTO =  {
+            _id: userDBO?.id,
+            token
         }
 
         return userLoginResponseDTO;
     }
 
     public async edit(userEditDTO: UserEditDTO): Promise<void> {
-        const anyUser = await UserModel.findOne({email: userEditDTO.newEmail})
-        if (anyUser?.email) {
+        const anyUserExists = await this._userRepository.findByEmail(userEditDTO.newEmail)
+        if (anyUserExists?.email) {
             throw new ValueAlreadyInUse('new email is already taken');
         }
 
-        const user = await UserModel.findOne({email: userEditDTO.email})
-        if (!user?.email) {
+        const userDBO = await this._userRepository.findByEmail(userEditDTO.email)
+        if (!userDBO?.email) {
             throw new Unauthorized('user with the email does not exist');
         }
 
-        userEditDTO.newPassword = await hash(userEditDTO.newPassword);
+        const userEntity: UserEntity = mapUserDBOToUserEntity(userDBO);
 
-        const updateResult = await UserModel.updateOne({email: userEditDTO.email}, {
-            email: userEditDTO.newEmail,
-            password: userEditDTO.newPassword,
-        });
+        userEntity.email = userEditDTO.newEmail;
+        userEntity.password = userEditDTO.newPassword;
+        userEntity.role = userEditDTO.newRole;
 
-        if (updateResult?.modifiedCount !== 1 && updateResult?.modifiedCount !== 0) {
+        await userEntity.hashPassword();
+
+        const userDBOUpdate = mapUserEntityToUserDBO(userEntity);
+
+        const updateResult = await this._userRepository.updateOne(userDBOUpdate);
+
+        if (!updateResult) {
             throw new SomethingWentWrong(JSON.stringify(updateResult));
         }
     }
 
     public async verifyToken(userID: string, token: string): Promise<void> {
-        const user = await UserModel.findById(userID);
+        const user = await this._userRepository.findByID(userID);
 
         if (!user) {
             throw new Unauthorized('wrong user id');

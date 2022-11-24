@@ -5,7 +5,7 @@ import { UserRegisterDTO } from "@DTO/user/user-register.dto";
 
 export interface IUserService {
 
-    register: (userRegisterDTO: UserRegisterDTO) => Promise<any[]>;
+    register: (userRegisterDTO: UserRegisterDTO) => Promise<void>;
 
     login: (userRegisterDTO: UserLoginDTO) => Promise<UserLoginResponseDTO>;
 
