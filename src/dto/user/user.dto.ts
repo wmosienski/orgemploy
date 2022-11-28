@@ -3,4 +3,6 @@ export class UserDTO {
     password: string;
     token: string;
     role: string;
+    status: string;
+    confirmationCode: string;
 }

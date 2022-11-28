@@ -5,4 +5,6 @@ export const UserSchema = new mongoose.Schema({
     password: String,
     token: String,
     role: String,
+    status: String,
+    confirmationCode: String,
 });

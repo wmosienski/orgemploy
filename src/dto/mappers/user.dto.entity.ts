@@ -8,6 +8,8 @@ export const mapUserToUserEntity = (userDTO: UserDTO): UserEntity => {
     userEntity.password = userDTO.password;
     userEntity.token = userDTO.token;
     userEntity.role = userDTO.role;
+    userEntity.status = userDTO.status;
+    userEntity.confirmationCode = userDTO.confirmationCode;
     return userEntity;
 }
 

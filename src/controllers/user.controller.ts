@@ -11,6 +11,7 @@ import { UserEditDTO } from "@DTO/user/user-edit.dto";
 import { AuthMiddleware } from "./middlewares/auth.middleware";
 import { HTTPCodes } from "./helpers/http-codes";
 import { UserLoginDTO } from "@DTO/user/user-login.dto";
+import { UserConfirmEmailDTO } from "@DTO/user/user-confirm-email.dto";
 
 @CatchError(['constructor', 'bindRouters'])
 @injectable()
@@ -42,6 +43,12 @@ export class UserController extends BaseController {
                 method: 'post',
                 middlewares: [new AuthMiddleware(this._userService), new ValidateMiddleware(UserEditDTO)],
                 func: this.edit,
+            },
+            {
+                path: '/confirm',
+                method: 'post',
+                middlewares: [new AuthMiddleware(this._userService), new ValidateMiddleware(UserConfirmEmailDTO)],
+                func: this.confirm,
             }
         ])
     }
@@ -58,6 +65,11 @@ export class UserController extends BaseController {
 
     public async edit(req: Request<{}, {}, UserEditDTO>, res: Response): Promise<void> {
         const result = await this._userService.edit(req.body);
+        res.status(HTTPCodes.success.ok).send(result);
+    }
+
+    public async confirm(req: Request<{}, {}, UserConfirmEmailDTO>, res: Response): Promise<void> {
+        const result = await this._userService.confirmEmail(req.body);
         res.status(HTTPCodes.success.ok).send(result);
     }
 }

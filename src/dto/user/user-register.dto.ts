@@ -3,7 +3,7 @@ import { userRoles } from "../helpers/user-roles";
 
 export class UserRegisterDTO {
     @IsEmail()
-    @Length(2, 15)
+    @Length(2, 35)
     email: string;
 
     @IsString()
