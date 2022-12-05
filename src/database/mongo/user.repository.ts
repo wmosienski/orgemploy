@@ -9,7 +9,7 @@ export class UserRepository implements IUserRepository {
         const user = await UserModel.findById(userID);
         if (user?._id) {
             const userDBO = new UserDBO();
-            userDBO.set(user?._id, user?.email, user?.password, user?.token, user?.role);
+            userDBO.set(user?._id, user?.email, user?.password, user?.token, user?.role, user?.status, user?.confirmationCode);
             return userDBO; 
         }
         return null;
@@ -18,16 +18,16 @@ export class UserRepository implements IUserRepository {
         const user = await UserModel.findOne({email});
         if (user?._id) {
             const userDBO = new UserDBO()
-            userDBO.set(user?._id, user?.email, user?.password, user?.token, user?.role);
+            userDBO.set(user?._id, user?.email, user?.password, user?.token, user?.role, user?.status, user?.confirmationCode);
             return userDBO; 
         }
         return null;
     }
     async insertOne(user: UserDBO): Promise<void> {
-        UserModel.create(user);
+        await UserModel.create(user);
     }
     async insertMany(users: [UserDBO]): Promise<void> {
-        UserModel.insertMany(users);
+        await UserModel.insertMany(users);
     }
     async updateOne(user: UserDBO): Promise<boolean> {
         const updateResult = await UserModel.updateOne({_id: user.id}, user);

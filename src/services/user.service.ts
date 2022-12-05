@@ -18,17 +18,23 @@ import { IUserRepository } from '@Database/interfaces/user.repository.interface'
 import { DI_TYPES } from 'DI_TYPES';
 import { UserDBO } from 'dbo/user.dbo';
 import { mapUserDBOToUserEntity, mapUserEntityToUserDBO } from 'entity/mappers/user.entity.dbo';
+import { IEmailService } from './interfaces/email.interface';
+import { UserConfirmEmailDTO } from '@DTO/user/user-confirm-email.dto';
+import { WrongData } from 'errors/WrongData';
 
 @injectable()
 export class UserService implements IUserService {
 
     private readonly _userRepository: IUserRepository;
+    private readonly _emailService: IEmailService;
 
     constructor(
         @inject(DI_TYPES.LoggerService) loggerService: ILoggerService,
         @inject(DI_TYPES.UserRepository) userRepository: IUserRepository,
+        @inject(DI_TYPES.EmailService) emailService: IEmailService,
     ) {
         this._userRepository = userRepository;
+        this._emailService = emailService;
     }
 
     public async register(userRegisterDTO: UserRegisterDTO): Promise<void> {
@@ -43,8 +49,53 @@ export class UserService implements IUserService {
 
         const userDBO: UserDBO = mapUserEntityToUserDBO(userEntity);
 
-        await this._userRepository.insertMany([userDBO]);
+        await this._userRepository.insertOne(userDBO);
+
+        await this.sendEmailConfirmation(userDBO.email);
     }
+
+    public async sendEmailConfirmation(email: string): Promise<void> {
+        const userDBO = await this._userRepository.findByEmail(email);
+
+        if (!userDBO?.id) {
+            throw new WrongData(`user ${email} does not exist`);
+        }
+
+        if (userDBO?.status === 'active') {
+            throw new WrongData('user email is already confirmed');
+        }
+
+        const userEntity: UserEntity = mapUserDBOToUserEntity(userDBO);
+
+        userEntity.generateConfirmationCode();
+
+        const userDBOUpdate: UserDBO = mapUserEntityToUserDBO(userEntity);
+
+        await this._userRepository.updateOne(userDBOUpdate);
+
+        await this._emailService.sendEmailConfirmation(userDBOUpdate.confirmationCode, email);
+    };
+
+    public async confirmEmail(userConfirmEmailDTO: UserConfirmEmailDTO): Promise<void> {
+        const userDBO = await this._userRepository.findByEmail(userConfirmEmailDTO.email);
+        
+        if (!userDBO?.id) {
+            throw new WrongData('user does not exist');
+        }
+
+        if (userDBO?.confirmationCode !== userConfirmEmailDTO.code) {
+            throw new WrongData('confirmation code does not match');
+        }
+
+        const userEntity: UserEntity = mapUserDBOToUserEntity(userDBO);
+
+        userEntity.activate();
+
+        const userDBOUpdate: UserDBO = mapUserEntityToUserDBO(userEntity);
+
+        await this._userRepository.updateOne(userDBOUpdate);
+
+    };
 
     public async login(userLoginDTO: UserLoginDTO): Promise<UserLoginResponseDTO> {
         const userDBO = await this._userRepository.findByEmail(userLoginDTO.email);

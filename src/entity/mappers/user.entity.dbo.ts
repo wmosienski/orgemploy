@@ -8,6 +8,8 @@ export const mapUserEntityToUserDBO = (userEntity: UserEntity): UserDBO => {
     userDBO.password = userEntity.password;
     userDBO.token = userEntity.token;
     userDBO.role = userEntity.role;
+    userDBO.status = userEntity.status;
+    userDBO.confirmationCode = userEntity.confirmationCode;
     return userDBO;
 }
 
@@ -18,5 +20,7 @@ export const mapUserDBOToUserEntity = (userDBO: UserDBO): UserEntity => {
     userEntity.password = userDBO.password;
     userEntity.token = userDBO.token;
     userEntity.role = userDBO.role;
+    userEntity.status = userDBO.status;
+    userEntity.confirmationCode = userDBO.confirmationCode;
     return userEntity;
 }

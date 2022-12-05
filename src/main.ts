@@ -4,8 +4,10 @@ import { IUserRepository } from "@Database/interfaces/user.repository.interface"
 import initializeMongo from "@Database/mongo/mongo";
 import { UserRepository } from "@Database/mongo/user.repository";
 import { LoggerService, UserService } from "@Services";
+import { EmailService } from "@Services/email.service";
 import { EmployeeService } from "@Services/employee.service";
 import { ILoggerService, IUserService } from "@Services/interfaces";
+import { IEmailService } from "@Services/interfaces/email.interface";
 import { IEmployeeService } from "@Services/interfaces/employee.interface";
 import { App } from "app";
 import { DI_TYPES } from "DI_TYPES";
@@ -23,6 +25,7 @@ export const appBindings = new ContainerModule((bind: interfaces.Bind) => {
     bind<IEmployeeService>(DI_TYPES.EmployeeService).to(EmployeeService).inSingletonScope();
     bind<EmployeeController>(DI_TYPES.EmployeeController).to(EmployeeController).inSingletonScope();
     bind<IUserRepository>(DI_TYPES.UserRepository).to(UserRepository).inSingletonScope();
+    bind<IEmailService>(DI_TYPES.EmailService).to(EmailService).inSingletonScope();
     bind<App>(DI_TYPES.App).to(App);
 });
 
