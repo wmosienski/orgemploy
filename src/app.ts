@@ -48,6 +48,7 @@ export class App {
         this.useRoutes();
         this._app.use(new ResponseCodeMiddleware().execute)
         this._server = this._app.listen(this._port);
-        this._loggerService.log('Server is running');
+        this._loggerService.info('Server is running');
+        this._loggerService.error('test - not an actual error');
     }
 }
