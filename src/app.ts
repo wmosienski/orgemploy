@@ -1,14 +1,14 @@
-import { UserController } from '@Controllers/user.controller';
-import { ILoggerService } from '@Services/interfaces';
+import { UserController } from '@Controller/user.controller';
+import { ILoggerService } from '@Service/interfaces';
 import { DI_TYPES } from 'DI_TYPES';
 import express, { Express } from 'express';
 import { Server } from 'http';
 import { inject, injectable } from "inversify";
 import * as bodyParser from 'body-parser';
 import 'dotenv';
-import { ResponseCodeMiddleware } from '@Controllers/middlewares/response.code.errorware';
-import { EmployeeService } from '@Services/employee.service';
-import { EmployeeController } from '@Controllers/employee.controller';
+import { ResponseCodeMiddleware } from '@Controller/middlewares/response.code.errorware';
+import { EmployeeService } from '@Service/employee.service';
+import { EmployeeController } from '@Controller/employee.controller';
 
 const DEFAULT_PORT = 5000;
 

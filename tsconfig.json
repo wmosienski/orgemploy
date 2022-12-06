@@ -23,14 +23,17 @@
 		"baseUrl": "src",
 		"rootDir": "src",
 		"paths": {
-			"@Services*": ["services*", "services/"],
-			"@Controllers*": ["controllers*", "controllers/"],
-			"@DTO*": ["dto*", "dto/"],
+			"@Controller*": ["controller*", "controller/"],
+			"@Service*": ["service*", "service/"],
 			"@Database*": ["database*", "database/"],
+			"@DTO*": ["cross_layer_object/dto*", "cross_layer_object/dto/"],
+			"@Entity*": ["cross_layer_object/entity*", "cross_layer_object/entity/"],
+			"@DBO*": ["cross_layer_object/dbo*", "cross_layer_object/dbo/"],
+			"@Mappers*": ["cross_layer_object/mappers*", "cross_layer_object/mappers/"],
+			"@Errors*": ["cross_layer_object/errors*", "cross_layer_object/errors/"],
+			"@Log*": ["cross_layer_object/log*", "cross_layer_object/log/"],
 			"@Providers*": ["providers*", "providers/"],
-			"@Enums": ["enums*", "enums/"],
-			"@Entities": ["entities*", "entities/"],
-			"@Mappers": ["mappers*", "mappers/"],
+			"@Utils*": ["utils*", "utils/"],
 		},
 		"plugins": [
 			{ "transform": "typescript-transform-paths" }

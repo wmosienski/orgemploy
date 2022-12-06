@@ -1,4 +1,4 @@
-import { UserDBO } from "dbo/user.dbo";
+import { UserDBO } from "@DBO/user.dbo";
 
 export interface IUserRepository {
     findByID(userID: string): Promise<UserDBO | null>;
