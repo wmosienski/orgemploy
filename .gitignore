@@ -103,4 +103,5 @@ dist
 # TernJS port file
 .tern-port
 gmail_client_secret.json
+gmail_client_secret_workspace.json
 gmail_token.json

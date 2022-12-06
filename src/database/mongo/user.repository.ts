@@ -1,5 +1,5 @@
 import { IUserRepository } from "@Database/interfaces/user.repository.interface";
-import { UserDBO } from "dbo/user.dbo";
+import { UserDBO } from "@DBO/user.dbo";
 import { injectable } from "inversify";
 import { UserModel } from "./models";
 
