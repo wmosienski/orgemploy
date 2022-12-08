@@ -1,11 +1,9 @@
 export interface ILoggerService {
 
-    logger: unknown;
+    info: (message: string) => void;
 
-    log: (...args: unknown[]) => void;
+    warn: (message: string) => void;
 
-    error: (...args: unknown[]) => void;
-
-    warn: (...args: unknown[]) => void;
+    error: (message: string) => void;
 
 }
